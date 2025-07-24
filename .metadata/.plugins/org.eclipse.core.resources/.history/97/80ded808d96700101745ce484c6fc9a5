@@ -1,0 +1,52 @@
+package Project;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Scanner;
+
+public class Freelancer {
+    Connection c;
+    PreparedStatement p;
+    Scanner sc = new Scanner(System.in);
+
+    public Freelancer() {
+        try {
+            // Load Oracle JDBC Driver
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+
+            // Connect to Oracle Database
+            c = DriverManager.getConnection(
+                    "jdbc:oracle:thin:@MechaNova:1521:XE",
+                    "sundar",
+                    "kit"
+            );
+
+            System.out.println("Connection successful: " + c);
+
+        } catch (ClassNotFoundException e) {
+            System.out.println("JDBC Driver not found!");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Database connection error!");
+            e.printStackTrace();
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            if (p != null) p.close();
+            if (c != null) c.close();
+            System.out.println("Connection closed.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ADD A MAIN METHOD TO TEST
+    public static void main(String[] args) {
+        Freelancer f = new Freelancer(); // Create object and connect
+        f.closeConnection(); // Close connection
+    }
+}

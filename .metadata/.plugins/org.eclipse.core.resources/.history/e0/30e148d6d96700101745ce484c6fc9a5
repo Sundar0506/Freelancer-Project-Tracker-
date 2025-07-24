@@ -1,0 +1,30 @@
+package Project;
+
+import java.io.DataInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Scanner;
+
+public class Freelancer {
+	Connection c;
+	PreparedStatement p;
+	DataInputStream dis = new DataInputStream(System.in);
+	public Freelancer()
+	{
+		try{
+		Class.forName("oracle.jdbc.driver.OracleDriver");
+		c = DriverManager.getConnection("jdbc:oracle:thin:@MechaNova:1521:XE","sundar","kit");
+		System.out.println(c.toString());
+		}
+		catch(ClassNotFoundException e){
+			e.printStackTrace();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

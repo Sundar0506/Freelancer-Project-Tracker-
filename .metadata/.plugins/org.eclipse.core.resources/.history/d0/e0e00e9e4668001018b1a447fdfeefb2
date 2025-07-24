@@ -1,0 +1,366 @@
+package Project;
+
+import java.io.DataInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Scanner;
+
+public class Freelancer {
+    private static Connection conn;
+
+    public static void main(String[] args) {
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@MechaNova:1521:XE", "sundar", "kit");
+            System.out.println("Connected to Oracle Database!");
+
+            Scanner sc = new Scanner(System.in);
+            while (true) {
+                System.out.println("\n===== Freelancer Project Tracker Menu =====");
+                System.out.println("1. Manage Clients");
+                System.out.println("2. Manage Freelancers");
+                System.out.println("3. Manage Projects");
+                System.out.println("4. Manage Tasks");
+                System.out.println("5. Manage Payments");
+                System.out.println("0. Exit");
+                System.out.print("Choose an option: ");
+                int choice = sc.nextInt();
+
+                switch (choice) {
+                    case 1: manageClients(sc); break;
+                    case 2: manageFreelancers(sc); break;
+                    case 3: manageProjects(sc); break;
+                    case 4: manageTasks(sc); break;
+                    case 5: managePayments(sc); break;
+                    case 0: System.exit(0);
+                    default: System.out.println("Invalid choice.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // CLIENT MODULE
+    static void manageClients(Scanner sc) throws SQLException {
+        while (true) {
+            System.out.println("\n--- Client Operations ---");
+            System.out.println("1. Add Client");
+            System.out.println("2. View Clients");
+            System.out.println("3. Update Client");
+            System.out.println("4. Delete Client");
+            System.out.println("0. Back");
+            System.out.print("Choose: ");
+            int ch = sc.nextInt();
+            sc.nextLine();
+            if (ch == 0) break;
+
+            switch (ch) {
+                case 1 : 
+                {
+                    System.out.print("Client Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Email: ");
+                    String email = sc.nextLine();
+                    System.out.print("Contact No: ");
+                    String contact = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO clients VALUES (CLIENT_SEQ.NEXTVAL, ?, ?, ?)");
+                    ps.setString(1, name);
+                    ps.setString(2, email);
+                    ps.setString(3, contact);
+                    ps.executeUpdate();
+                    System.out.println("Client added.");
+                }
+                case 2:
+                {
+                    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM clients");
+                    while (rs.next())
+                        System.out.printf("%d | %s | %s | %s\n", rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
+                }
+                case 3:
+                {
+                    System.out.print("Client ID to update: ");
+                    int id = sc.nextInt(); sc.nextLine();
+                    System.out.print("New Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("New Email: ");
+                    String email = sc.nextLine();
+                    System.out.print("New Contact: ");
+                    String contact = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("UPDATE clients SET client_name=?, email=?, contact_no=? WHERE client_id=?");
+                    ps.setString(1, name);
+                    ps.setString(2, email);
+                    ps.setString(3, contact);
+                    ps.setInt(4, id);
+                    ps.executeUpdate();
+                    System.out.println("Client updated.");
+                }
+                case 4 : {
+                    System.out.print("Client ID to delete: ");
+                    int id = sc.nextInt();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM clients WHERE client_id=?");
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                    System.out.println("Client deleted.");
+                }
+            }
+        }
+    }
+
+    // FREELANCER MODULE
+    static void manageFreelancers(Scanner sc) throws SQLException {
+        while (true) {
+            System.out.println("\n--- Freelancer Operations ---");
+            System.out.println("1. Add Freelancer");
+            System.out.println("2. View Freelancers");
+            System.out.println("3. Update Freelancer");
+            System.out.println("4. Delete Freelancer");
+            System.out.println("0. Back");
+            System.out.print("Choose: ");
+            int ch = sc.nextInt();
+            sc.nextLine();
+            if (ch == 0) break;
+
+            switch (ch) {
+                case 1 : {
+                    System.out.print("First Name: ");
+                    String fname = sc.nextLine();
+                    System.out.print("Last Name: ");
+                    String lname = sc.nextLine();
+                    System.out.print("Email: ");
+                    String email = sc.nextLine();
+                    System.out.print("Contact: ");
+                    String contact = sc.nextLine();
+                    System.out.print("Skills: ");
+                    String skills = sc.nextLine();
+                    System.out.print("Hourly Rate: ");
+                    double rate = sc.nextDouble(); sc.nextLine();
+                    System.out.print("Availability: ");
+                    String avail = sc.nextLine();
+                    System.out.print("Profile Desc: ");
+                    String desc = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO freelancers VALUES (FREELANCER_SEQ.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, SYSTIMESTAMP, SYSTIMESTAMP)");
+                    ps.setString(1, fname); ps.setString(2, lname); ps.setString(3, email); ps.setString(4, contact);
+                    ps.setString(5, skills); ps.setDouble(6, rate); ps.setString(7, avail); ps.setString(8, desc);
+                    ps.executeUpdate();
+                    System.out.println("Freelancer added.");
+                }
+                case 2 : {
+                    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM freelancers");
+                    while (rs.next())
+                        System.out.printf("%d | %s %s | %s | %s | %s | %.2f | %s\n", rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
+                                rs.getString(5), rs.getString(6), rs.getDouble(7), rs.getString(8));
+                }
+                case 3 : {
+                    System.out.print("Freelancer ID to update: ");
+                    int id = sc.nextInt(); sc.nextLine();
+                    System.out.print("New Email: ");
+                    String email = sc.nextLine();
+                    System.out.print("New Contact: ");
+                    String contact = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("UPDATE freelancers SET email=?, contact_number=?, modified_at=SYSTIMESTAMP WHERE freelancer_id=?");
+                    ps.setString(1, email); ps.setString(2, contact); ps.setInt(3, id);
+                    ps.executeUpdate();
+                    System.out.println("Freelancer updated.");
+                }
+                case 4 : {
+                    System.out.print("Freelancer ID to delete: ");
+                    int id = sc.nextInt();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM freelancers WHERE freelancer_id=?");
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                    System.out.println("Freelancer deleted.");
+                }
+            }
+        }
+    }
+
+    // PROJECT MODULE
+    static void manageProjects(Scanner sc) throws SQLException {
+        while (true) {
+            System.out.println("\n--- Project Operations ---");
+            System.out.println("1. Add Project");
+            System.out.println("2. View Projects");
+            System.out.println("3. Update Project");
+            System.out.println("4. Delete Project");
+            System.out.println("0. Back");
+            System.out.print("Choose: ");
+            int ch = sc.nextInt();
+            sc.nextLine();
+            if (ch == 0) break;
+
+            switch (ch) {
+                case 1 : {
+                    System.out.print("Project Name: ");
+                    String pname = sc.nextLine();
+                    System.out.print("Client ID: ");
+                    int cid = sc.nextInt();
+                    System.out.print("Freelancer ID: ");
+                    int fid = sc.nextInt(); sc.nextLine();
+                    System.out.print("Start Date (YYYY-MM-DD): ");
+                    String sd = sc.nextLine();
+                    System.out.print("End Date (YYYY-MM-DD): ");
+                    String ed = sc.nextLine();
+                    System.out.print("Status: ");
+                    String status = sc.nextLine();
+                    System.out.print("Description: ");
+                    String desc = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO projects VALUES (PROJECT_SEQ.NEXTVAL, ?, ?, ?, TO_DATE(?, 'YYYY-MM-DD'), TO_DATE(?, 'YYYY-MM-DD'), ?, ?)");
+                    ps.setString(1, pname); ps.setInt(2, cid); ps.setInt(3, fid);
+                    ps.setString(4, sd); ps.setString(5, ed); ps.setString(6, status); ps.setString(7, desc);
+                    ps.executeUpdate();
+                    System.out.println("Project added.");
+                }
+                case 2 : {
+                    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM projects");
+                    while (rs.next())
+                        System.out.printf("%d | %s | ClientID:%d | FreeID:%d | %s to %s | %s | %s\n", rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4),
+                                rs.getDate(5), rs.getDate(6), rs.getString(7), rs.getString(8));
+                }
+                case 3 : {
+                    System.out.print("Project ID to update: ");
+                    int id = sc.nextInt(); sc.nextLine();
+                    System.out.print("New Status: ");
+                    String status = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("UPDATE projects SET status=? WHERE project_id=?");
+                    ps.setString(1, status); ps.setInt(2, id);
+                    ps.executeUpdate();
+                    System.out.println("Project updated.");
+                }
+                case 4 : {
+                    System.out.print("Project ID to delete: ");
+                    int id = sc.nextInt();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM projects WHERE project_id=?");
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                    System.out.println("Project deleted.");
+                }
+            }
+        }
+    }
+
+    // TASK MODULE
+    static void manageTasks(Scanner sc) throws SQLException {
+        while (true) {
+            System.out.println("\n--- Task Operations ---");
+            System.out.println("1. Add Task");
+            System.out.println("2. View Tasks");
+            System.out.println("3. Update Task");
+            System.out.println("4. Delete Task");
+            System.out.println("0. Back");
+            System.out.print("Choose: ");
+            int ch = sc.nextInt();
+            sc.nextLine();
+            if (ch == 0) break;
+
+            switch (ch) {
+                case 1 : {
+                    System.out.print("Project ID: ");
+                    int pid = sc.nextInt();
+                    System.out.print("Freelancer ID: ");
+                    int fid = sc.nextInt(); sc.nextLine();
+                    System.out.print("Task Name: ");
+                    String tname = sc.nextLine();
+                    System.out.print("Start Date (YYYY-MM-DD): ");
+                    String sd = sc.nextLine();
+                    System.out.print("End Date (YYYY-MM-DD): ");
+                    String ed = sc.nextLine();
+                    System.out.print("Status: ");
+                    String status = sc.nextLine();
+                    System.out.print("Assigned To: ");
+                    String assigned = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO tasks VALUES (TASK_SEQ.NEXTVAL, ?, ?, ?, TO_DATE(?, 'YYYY-MM-DD'), TO_DATE(?, 'YYYY-MM-DD'), ?, ?)");
+                    ps.setInt(1, pid); ps.setInt(2, fid); ps.setString(3, tname); ps.setString(4, sd); ps.setString(5, ed);
+                    ps.setString(6, status); ps.setString(7, assigned);
+                    ps.executeUpdate();
+                    System.out.println("Task added.");
+                }
+                case 2 : {
+                    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM tasks");
+                    while (rs.next())
+                        System.out.printf("%d | %s | ProjectID:%d | FreeID:%d | %s to %s | %s | Assigned to %s\n", rs.getInt(1), rs.getString(4), rs.getInt(2),
+                                rs.getInt(3), rs.getDate(5), rs.getDate(6), rs.getString(7), rs.getString(8));
+                }
+                case 3 : {
+                    System.out.print("Task ID to update: ");
+                    int id = sc.nextInt(); sc.nextLine();
+                    System.out.print("New Status: ");
+                    String status = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("UPDATE tasks SET status=? WHERE task_id=?");
+                    ps.setString(1, status); ps.setInt(2, id);
+                    ps.executeUpdate();
+                    System.out.println("Task updated.");
+                }
+                case 4 : {
+                    System.out.print("Task ID to delete: ");
+                    int id = sc.nextInt();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM tasks WHERE task_id=?");
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                    System.out.println("Task deleted.");
+                }
+            }
+        }
+    }
+
+    // PAYMENT MODULE
+    static void managePayments(Scanner sc) throws SQLException {
+        while (true) {
+            System.out.println("\n--- Payment Operations ---");
+            System.out.println("1. Add Payment");
+            System.out.println("2. View Payments");
+            System.out.println("3. Update Payment Amount");
+            System.out.println("4. Delete Payment");
+            System.out.println("0. Back");
+            System.out.print("Choose: ");
+            int ch = sc.nextInt();
+            sc.nextLine();
+            if (ch == 0) break;
+
+            switch (ch) {
+                case 1 : {
+                    System.out.print("Project ID: ");
+                    int pid = sc.nextInt();
+                    System.out.print("Freelancer ID: ");
+                    int fid = sc.nextInt();
+                    System.out.print("Amount Paid: ");
+                    double amt = sc.nextDouble(); sc.nextLine();
+                    System.out.print("Payment Date (YYYY-MM-DD): ");
+                    String pdate = sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO payments VALUES (PAYMENT_SEQ.NEXTVAL, ?, ?, ?, TO_DATE(?, 'YYYY-MM-DD'))");
+                    ps.setInt(1, pid); ps.setInt(2, fid); ps.setDouble(3, amt); ps.setString(4, pdate);
+                    ps.executeUpdate();
+                    System.out.println("Payment added.");
+                }
+                case 2 : {
+                    ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM payments");
+                    while (rs.next())
+                        System.out.printf("%d | ProjectID:%d | FreeID:%d | Amount: ₹%.2f | Date: %s\n", rs.getInt(1), rs.getInt(2),
+                                rs.getInt(3), rs.getDouble(4), rs.getDate(5));
+                }
+                case 3 : {
+                    System.out.print("Payment ID to update: ");
+                    int id = sc.nextInt(); sc.nextLine();
+                    System.out.print("New Amount: ");
+                    double amt = sc.nextDouble(); sc.nextLine();
+                    PreparedStatement ps = conn.prepareStatement("UPDATE payments SET amount_paid=? WHERE payment_id=?");
+                    ps.setDouble(1, amt); ps.setInt(2, id);
+                    ps.executeUpdate();
+                    System.out.println("Payment updated.");
+                }
+                case 4 : {
+                    System.out.print("Payment ID to delete: ");
+                    int id = sc.nextInt();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM payments WHERE payment_id=?");
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                    System.out.println("Payment deleted.");
+                }
+            }
+        }
+    }
+}

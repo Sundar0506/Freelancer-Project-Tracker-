@@ -1,0 +1,42 @@
+package Project;
+
+import java.io.DataInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Scanner;
+
+public class Freelancer {
+
+    Connection c;
+    PreparedStatement p;
+
+    public Freelancer() {
+        try {
+            // Load Oracle JDBC Driver
+            Class.forName("oracle.jdbc.OracleDriver");
+
+            // Connect to Oracle Database
+            c = DriverManager.getConnection(
+                "jdbc:oracle:thin:@MechaNova:1521:XE", // Replace XE with service name if needed
+                "sundar",
+                "kit"
+            );
+
+            System.out.println("Connected to Oracle Database Successfully!");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Oracle JDBC Driver not found.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Database connection failed.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        new Freelancer();  // Creates an object and tests DB connection
+    }
+}

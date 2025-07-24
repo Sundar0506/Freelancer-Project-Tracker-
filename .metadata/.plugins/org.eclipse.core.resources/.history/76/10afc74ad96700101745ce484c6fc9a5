@@ -1,0 +1,258 @@
+package Project;
+
+import java.sql.*;
+import java.util.Scanner;
+
+public class Freelancer {
+
+    Connection c;
+    PreparedStatement p;
+    Scanner sc = new Scanner(System.in);
+
+    public Freelancer() {
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            c = DriverManager.getConnection(
+                "jdbc:oracle:thin:@KITNWLAB-60:1521:XE", "b2027", "kit");
+            System.out.println("Connected to DB: " + c);
+        } catch (Exception e) {
+            System.out.println("Error connecting to DB.");
+            e.printStackTrace();
+        }
+    }
+
+    // Menu method to display options
+    public void showMenu() {
+        int choice;
+        do {
+            System.out.println("\nFreelancer Management System");
+            System.out.println("1. Add Freelancer");
+            System.out.println("2. View Freelancers");
+            System.out.println("3. Update Freelancer");
+            System.out.println("4. Delete Freelancer");
+            System.out.println("5. Add Task");
+            System.out.println("6. View Tasks");
+            System.out.println("7. Update Task");
+            System.out.println("8. Delete Task");
+            System.out.println("9. Add Payment");
+            System.out.println("10. View Payments");
+            System.out.println("11. Update Payment");
+            System.out.println("12. Delete Payment");
+            System.out.println("13. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+            sc.nextLine();  // Consume newline
+
+            switch (choice) {
+                case 1:
+                    addFreelancer();
+                    break;
+                case 2:
+                    viewFreelancers();
+                    break;
+                case 3:
+                    updateFreelancer();
+                    break;
+                case 4:
+                    deleteFreelancer();
+                    break;
+                case 5:
+                    addTask();
+                    break;
+                case 6:
+                    viewTasks();
+                    break;
+                case 7:
+                    updateTask();
+                    break;
+                case 8:
+                    deleteTask();
+                    break;
+                case 9:
+                    addPayment();
+                    break;
+                case 10:
+                    viewPayments();
+                    break;
+                case 11:
+                    updatePayment();
+                    break;
+                case 12:
+                    deletePayment();
+                    break;
+                case 13:
+                    System.out.println("Exiting the system.");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 13);
+    }
+
+    // Add a new freelancer
+    public void addFreelancer() {
+        try {
+            System.out.println("Enter freelancer details:");
+            System.out.print("Freelancer ID: ");
+            int freelancerId = sc.nextInt();
+            sc.nextLine();  // Consume newline
+            System.out.print("First Name: ");
+            String firstName = sc.nextLine();
+            System.out.print("Last Name: ");
+            String lastName = sc.nextLine();
+            System.out.print("Email: ");
+            String email = sc.nextLine();
+            System.out.print("Contact Number: ");
+            String contactNumber = sc.nextLine();
+            System.out.print("Skills: ");
+            String skills = sc.nextLine();
+            System.out.print("Hourly Rate: ");
+            double hourlyRate = sc.nextDouble();
+            sc.nextLine();  // Consume newline
+            System.out.print("Availability: ");
+            String availability = sc.nextLine();
+            System.out.print("Profile Description: ");
+            String profileDescription = sc.nextLine();
+
+            String sql = "INSERT INTO freelancers (freelancer_id, first_name, last_name, email, contact_number, skills, hourly_rate, availability, profile_description, created_at, modified_at) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, SYSTIMESTAMP, SYSTIMESTAMP)";
+            p = c.prepareStatement(sql);
+            p.setInt(1, freelancerId);
+            p.setString(2, firstName);
+            p.setString(3, lastName);
+            p.setString(4, email);
+            p.setString(5, contactNumber);
+            p.setString(6, skills);
+            p.setDouble(7, hourlyRate);
+            p.setString(8, availability);
+            p.setString(9, profileDescription);
+
+            int rows = p.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Freelancer added successfully!");
+            } else {
+                System.out.println("Failed to add freelancer.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error adding freelancer.");
+            e.printStackTrace();
+        }
+    }
+
+    // View freelancers
+    public void viewFreelancers() {
+        try {
+            String sql = "SELECT * FROM freelancers";
+            p = c.prepareStatement(sql);
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                int freelancerId = resultSet.getInt("freelancer_id");
+                String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String email = resultSet.getString("email");
+                String contactNumber = resultSet.getString("contact_number");
+                String skills = resultSet.getString("skills");
+                double hourlyRate = resultSet.getDouble("hourly_rate");
+                String availability = resultSet.getString("availability");
+                String profileDescription = resultSet.getString("profile_description");
+
+                System.out.println("Freelancer ID: " + freelancerId + ", Name: " + firstName + " " + lastName + ", Email: " + email + ", Skills: " + skills + 
+                                   ", Hourly Rate: " + hourlyRate + ", Availability: " + availability + ", Profile: " + profileDescription);
+            }
+        } catch (Exception e) {
+            System.out.println("Error retrieving freelancers.");
+            e.printStackTrace();
+        }
+    }
+
+    // Update freelancer details
+    public void updateFreelancer() {
+        try {
+            System.out.print("Enter freelancer ID to update: ");
+            int freelancerId = sc.nextInt();
+            sc.nextLine();  // Consume newline
+
+            System.out.println("Enter new details (leave blank to skip):");
+            System.out.print("First Name: ");
+            String firstName = sc.nextLine();
+            System.out.print("Last Name: ");
+            String lastName = sc.nextLine();
+            System.out.print("Email: ");
+            String email = sc.nextLine();
+            System.out.print("Contact Number: ");
+            String contactNumber = sc.nextLine();
+            System.out.print("Skills: ");
+            String skills = sc.nextLine();
+            System.out.print("Hourly Rate: ");
+            String hourlyRateInput = sc.nextLine();
+            System.out.print("Availability: ");
+            String availability = sc.nextLine();
+            System.out.print("Profile Description: ");
+            String profileDescription = sc.nextLine();
+
+            StringBuilder sql = new StringBuilder("UPDATE freelancers SET ");
+            if (!firstName.isEmpty()) sql.append("first_name = ?, ");
+            if (!lastName.isEmpty()) sql.append("last_name = ?, ");
+            if (!email.isEmpty()) sql.append("email = ?, ");
+            if (!contactNumber.isEmpty()) sql.append("contact_number = ?, ");
+            if (!skills.isEmpty()) sql.append("skills = ?, ");
+            if (!hourlyRateInput.isEmpty()) sql.append("hourly_rate = ?, ");
+            if (!availability.isEmpty()) sql.append("availability = ?, ");
+            if (!profileDescription.isEmpty()) sql.append("profile_description = ? ");
+            sql.append("WHERE freelancer_id = ?");
+
+            p = c.prepareStatement(sql.toString());
+
+            int paramIndex = 1;
+            if (!firstName.isEmpty()) p.setString(paramIndex++, firstName);
+            if (!lastName.isEmpty()) p.setString(paramIndex++, lastName);
+            if (!email.isEmpty()) p.setString(paramIndex++, email);
+            if (!contactNumber.isEmpty()) p.setString(paramIndex++, contactNumber);
+            if (!skills.isEmpty()) p.setString(paramIndex++, skills);
+            if (!hourlyRateInput.isEmpty()) p.setDouble(paramIndex++, Double.parseDouble(hourlyRateInput));
+            if (!availability.isEmpty()) p.setString(paramIndex++, availability);
+            if (!profileDescription.isEmpty()) p.setString(paramIndex++, profileDescription);
+
+            p.setInt(paramIndex, freelancerId);
+
+            int rows = p.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Freelancer details updated successfully!");
+            } else {
+                System.out.println("Failed to update freelancer.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error updating freelancer.");
+            e.printStackTrace();
+        }
+    }
+
+    // Delete freelancer
+    public void deleteFreelancer() {
+        try {
+            System.out.print("Enter freelancer ID to delete: ");
+            int freelancerId = sc.nextInt();
+            sc.nextLine();  // Consume newline
+
+            String sql = "DELETE FROM freelancers WHERE freelancer_id = ?";
+            p = c.prepareStatement(sql);
+            p.setInt(1, freelancerId);
+
+            int rows = p.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Freelancer deleted successfully!");
+            } else {
+                System.out.println("Failed to delete freelancer.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error deleting freelancer.");
+            e.printStackTrace();
+        }
+    }
+
+    // Main method
+    public static void main(String[] args) {
+        Freelancer f = new Freelancer();
+        f.showMenu();
+    }
+}
