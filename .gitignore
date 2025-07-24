@@ -1,0 +1,13 @@
+# Ignore Eclipse & Java build files
+.metadata/
+bin/
+*.class
+*.log
+*.tmp
+.settings/
+.project
+.classpath
+
+# OS-specific
+.DS_Store
+Thumbs.db
